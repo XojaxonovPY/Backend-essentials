@@ -45,3 +45,11 @@ def flower(c):
 @task
 def beat(c):
     c.run("celery -A DjangoAPI beat -l info -S django")
+
+
+@task
+def restart(c):
+    c.run('docker rm -f django_container')
+    c.run('docker rmi -f docker_django')
+    c.run('docker build . -t django')
+    c.run('docker run --name django_container -p 8000:8000 docker_django')

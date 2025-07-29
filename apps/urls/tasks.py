@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from apps.views import CategoryModelViewSet, ProductModelViewSet, GenerateQRCodeView, WebGet, SeleniumView
+from apps.views import CategoryModelViewSet, ProductModelViewSet, GenerateQRCodeView, WebGet, SeleniumView, AskGPTView
 
 router = DefaultRouter()
 
@@ -13,4 +13,8 @@ urlpatterns = [
     path('generic/code', GenerateQRCodeView.as_view()),
     path('get/news/', WebGet.as_view()),
     path('get/products/', SeleniumView.as_view()),
+
+]
+urlpatterns += [
+    path('ask/', AskGPTView.as_view()),
 ]

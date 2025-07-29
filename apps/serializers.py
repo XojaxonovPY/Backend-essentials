@@ -96,3 +96,11 @@ class VerifyCodeSerializer(Serializer):
         self.user = data.get('user')
         self.pk=pk
         return attrs
+
+
+# serializers.py
+from rest_framework import serializers
+
+class QuestionSerializer(serializers.Serializer):
+    question = serializers.CharField()
+

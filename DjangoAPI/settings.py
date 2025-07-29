@@ -209,10 +209,10 @@ EMAIL_HOST_PASSWORD = getenv('EMAIL_HOST_PASSWORD')
 EMAIL_USE_SSL = False
 
 # =============================================celery==================================
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = getenv('REDIS_URL')
 
 # Natijalarni Redisda saqlashni xohlasangiz:
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = getenv('REDIS_URL')
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -220,6 +220,8 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Tashkent'
 
 # =============================================telethon==================================
-ID=getenv('ID')
-HASH=getenv('HASH')
+ID = getenv('ID')
+HASH = getenv('HASH')
 
+API_URL = "https://openrouter.ai/api/v1/chat/completions"
+API_KEY = getenv('API_KEY')

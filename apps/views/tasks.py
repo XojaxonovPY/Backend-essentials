@@ -2,24 +2,25 @@ import os
 import uuid
 from datetime import datetime
 
-from django.conf import settings
-from drf_spectacular.utils import extend_schema
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
-from apps.models import Category, Product, QRCode
-from apps.serializers import CategoryModelSerializer, ProductModelSerializer, QRCodeSerializer
-
 import qrcode
 import requests
 from bs4 import BeautifulSoup
-
+from django.conf import settings
+from drf_spectacular.utils import extend_schema
+from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+
+from DjangoAPI.settings import API_KEY, API_URL
+from apps.models import Category, Product, QRCode
+from apps.serializers import CategoryModelSerializer, ProductModelSerializer, QRCodeSerializer, QuestionSerializer
 
 
 @extend_schema(tags=['tasks'])
@@ -121,3 +122,39 @@ class SeleniumView(APIView):
             })
         driver.quit()
         return Response(products)
+
+
+@extend_schema(tags=["ChatBot"])
+class AskGPTView(GenericAPIView):
+    serializer_class = QuestionSerializer
+
+    def post(self, request):
+        headers = {
+            "Authorization": f"Bearer {API_KEY}",
+            "HTTP-Referer": "http://localhost",  # Ixtiyoriy, lekin statistikada foydali
+            "X-Title": "My Chat App"  # O‘zing xohlagan nom
+        }
+        user_question = request.data.get('question')
+        if not user_question:
+            return Response({"error": "Savol kerak"}, status=400)
+        payload = {
+            "model": "deepseek/deepseek-r1-0528-qwen3-8b:free",
+            "messages": [
+                {"role": "system", "content": "Siz foydalanuvchiga yordam beruvchi assistentsiz"},
+                {"role": "system",
+                 "content": "Senga 'salom' foydalanuvchidan sorovi kelsa sen 'Volekum Asalom' deb javob qaytar"},
+                {"role": "user", "content": user_question}
+            ]
+        }
+        try:
+            response = requests.post(API_URL, headers=headers, json=payload)
+            if response.status_code == 200:
+                result = response.json()["choices"][0]["message"]["content"]
+                return Response({"reply": result})
+            else:
+                return Response({
+                    "error": f"API xatosi: {response.status_code}",
+                    "detail": response.text
+                }, status=response.status_code)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
