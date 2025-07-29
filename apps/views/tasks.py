@@ -129,20 +129,15 @@ class AskGPTView(GenericAPIView):
     serializer_class = QuestionSerializer
 
     def post(self, request):
-        headers = {
-            "Authorization": f"Bearer {API_KEY}",
-            "HTTP-Referer": "http://localhost",  # Ixtiyoriy, lekin statistikada foydali
-            "X-Title": "My Chat App"  # O‘zing xohlagan nom
-        }
+        headers = {"Authorization": f"Bearer {API_KEY}"}
         user_question = request.data.get('question')
         if not user_question:
             return Response({"error": "Savol kerak"}, status=400)
         payload = {
-            "model": "deepseek/deepseek-r1-0528-qwen3-8b:free",
+            "model": "mistralai/mistral-7b-instruct",
             "messages": [
                 {"role": "system", "content": "Siz foydalanuvchiga yordam beruvchi assistentsiz"},
-                {"role": "system",
-                 "content": "Senga 'salom' foydalanuvchidan sorovi kelsa sen 'Volekum Asalom' deb javob qaytar"},
+                # {"role": "system", "content": "Javoblar toliq o'zbek tilida bolishi kerak"},
                 {"role": "user", "content": user_question}
             ]
         }
