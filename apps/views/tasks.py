@@ -1,7 +1,6 @@
 import os
 import uuid
 from datetime import datetime
-
 import qrcode
 import requests
 from bs4 import BeautifulSoup
@@ -134,10 +133,10 @@ class AskGPTView(GenericAPIView):
         if not user_question:
             return Response({"error": "Savol kerak"}, status=400)
         payload = {
-            "model": "mistralai/mistral-7b-instruct",
+            "model": "meta-llama/llama-3-8b-instruct",
             "messages": [
                 {"role": "system", "content": "Siz foydalanuvchiga yordam beruvchi assistentsiz"},
-                # {"role": "system", "content": "Javoblar toliq o'zbek tilida bolishi kerak"},
+                {"role": "system", "content": "Javoblar toliq o'zbek tilida bolishi kerak"},
                 {"role": "user", "content": user_question}
             ]
         }
