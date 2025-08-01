@@ -83,8 +83,12 @@ WSGI_APPLICATION = 'DjangoAPI.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': getenv('DB_DJANGO'),
+        'NAME': getenv('DB_NAME'),
+        'USER': getenv('DB_USER'),
+        'PASSWORD': getenv('DB_PASSWORD'),
+        'HOST': getenv('DB_DOCKER_HOST'),
+        'PORT': getenv('DB_PORT')
     }
 }
 
@@ -199,7 +203,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer"}
 # ================================================Redis=====================================
-redis = Redis(decode_responses=True)
+redis = Redis.from_url(getenv('REDIS_URL'),decode_responses=True)
 
 # ===============================================send_phone_number==========================
 
