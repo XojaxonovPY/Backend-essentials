@@ -43,6 +43,11 @@ def flower(c):
 
 
 @task
+def bot(c):
+    c.run("python bot/main.py")
+
+
+@task
 def beat(c):
     c.run("celery -A DjangoAPI beat -l info -S django")
 

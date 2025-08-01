@@ -2,6 +2,7 @@ import os
 import uuid
 from datetime import datetime
 import qrcode
+import docker
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -19,7 +20,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from DjangoAPI.settings import API_KEY, API_URL
 from apps.models import Category, Product, QRCode
-from apps.serializers import CategoryModelSerializer, ProductModelSerializer, QRCodeSerializer, QuestionSerializer
+from apps.serializers import CategoryModelSerializer, ProductModelSerializer
+from apps.serializers import QRCodeSerializer, QuestionSerializer, AutobotSerializer
 
 
 @extend_schema(tags=['tasks'])
@@ -36,12 +38,10 @@ class ProductModelViewSet(ModelViewSet):
     http_method_names = ['post']
 
 
-@extend_schema(
-    request=QRCodeSerializer,  # Swagger'ga inputni ko‘rsat
-    responses={200: dict},  # Javob turi
-    tags=["QR Code"]  # Swagger'da guruhlash
-)
-class GenerateQRCodeView(APIView):
+@extend_schema(tags=["QR Code"])
+class GenerateQRCodeGenericAPIView(GenericAPIView):
+    serializer_class = QRCodeSerializer
+
     def get(self, request):
         # 1. Unikal token yaratamiz
         token = str(uuid.uuid4())
@@ -79,7 +79,7 @@ class GenerateQRCodeView(APIView):
 
 
 @extend_schema(tags=['Web scraping'])
-class WebGet(APIView):
+class WebGetAPIView(APIView):
     def get(self, request):
         response = requests.get("https://kun.uz")
         html_code = response.text  # html
@@ -97,7 +97,7 @@ class WebGet(APIView):
 
 
 @extend_schema(tags=['Web scraping'])
-class SeleniumView(APIView):
+class SeleniumAPIView(APIView):
     def get(self, request):
         options = webdriver.ChromeOptions()
         # options.add_argument('--headless')
@@ -124,7 +124,7 @@ class SeleniumView(APIView):
 
 
 @extend_schema(tags=["ChatBot"])
-class AskGPTView(GenericAPIView):
+class AskGPTGenericAPIView(GenericAPIView):
     serializer_class = QuestionSerializer
 
     def post(self, request):
@@ -151,4 +151,25 @@ class AskGPTView(GenericAPIView):
                     "detail": response.text
                 }, status=response.status_code)
         except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+
+@extend_schema(tags=["Create Bot"])
+class AutoBotGenericAPIView(GenericAPIView):
+    serializer_class = AutobotSerializer
+
+    def post(self, request):
+        bot_token = request.data.get('bot_token')
+        name = request.data.get('name')
+        client = docker.from_env()
+        container_name = f'{name}_con'  # oxirgi 5 belgidan container nomi
+        try:
+            container = client.containers.run(
+                image=name,  # oldindan build qilingan image
+                name=container_name,
+                environment={"BOT_TOKEN": bot_token},
+                detach=True
+            )
+            return Response({"message": "Bot ishga tushirildi", "container_id": container.id})
+        except docker.errors.APIError as e:
             return Response({"error": str(e)}, status=500)

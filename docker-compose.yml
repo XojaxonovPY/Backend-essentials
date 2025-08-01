@@ -6,18 +6,18 @@ services:
     image: dja
     container_name: dj
     restart: always
-    command: 'sh -c "python manage.py makemigrations && python manage.py migrate && main:app --host 0.0.0.0 --port 8000 --reload"'
+    command: 'sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8005"'
     ports:
-      - '8001:8001'
+      - '8005:8005'
     depends_on:
       - db
 
   db:
     image: postgres:alpine
-    container_name: pg2
+    container_name: pg3
     restart: always
     ports:
-      - '5433:5432'
+      - '5434:5432'
     environment:
       POSTGRES_PASSWORD: 1
     volumes:
@@ -25,17 +25,17 @@ services:
 
   rd:
     image: redis:alpine
-    container_name: rd2
+    container_name: rd3
     restart: always
     ports:
-      - "6380:6379"
+      - "6381:6379"
     volumes:
       - redis_data:/data  \
 
   celery:
     build: .
-    image: celery_fast
-    container_name: cla
+    image: cl_dj
+    container_name: cl_djc
     restart: always
     command: celery -A DjangoAPI worker --loglevel=info --pool=solo
     depends_on:

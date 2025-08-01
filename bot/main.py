@@ -1,10 +1,10 @@
-import os
-import sys
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'DjangoAPI.settings')
+# import os
+# import sys
+#
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# sys.path.append(BASE_DIR)
+#
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'DjangoAPI.settings')
 
 import asyncio
 import logging
@@ -17,10 +17,10 @@ from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 from bot.handlers import router
 
-import django
-
-django.setup()
-
+# import django
+#
+# django.setup()
+#
 path = Path(__file__).parent.parent
 ENV_PATH = join(path, '.env')
 

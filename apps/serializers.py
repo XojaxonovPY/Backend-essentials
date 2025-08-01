@@ -94,13 +94,15 @@ class VerifyCodeSerializer(Serializer):
         if code != code:
             raise ValidationError('Verification code is invalid')
         self.user = data.get('user')
-        self.pk=pk
+        self.pk = pk
         return attrs
 
 
-# serializers.py
-from rest_framework import serializers
 
-class QuestionSerializer(serializers.Serializer):
-    question = serializers.CharField()
+class QuestionSerializer(Serializer):
+    question = CharField(required=True)
 
+
+class AutobotSerializer(Serializer):
+    bot_token = CharField(required=True)
+    name=CharField(required=True)
