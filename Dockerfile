@@ -1,11 +1,4 @@
-FROM python:3.11-slim
-
+FROM python:3.13-alpine
 WORKDIR /app
-
-# Faqat kerakli fayllarni nusxalaymiz
-COPY bot/ ./bot/
-
-RUN pip install aiogram
-
-CMD ["python", "bot/main.py"]
-
+COPY . .
+RUN pip install -r requirements.txt
