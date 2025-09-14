@@ -45,3 +45,37 @@
 # print(products)
 #
 # driver.quit()
+
+# from selenium import webdriver
+# from selenium.webdriver.chrome.service import Service
+# from webdriver_manager.chrome import ChromeDriverManager
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.support import expected_conditions as EC
+# from selenium.webdriver.support.ui import WebDriverWait
+# import time
+#
+# option = webdriver.ChromeOptions()
+# # options.add_argument('--headless')
+# option.add_argument('--incognito')
+# option.add_argument('--ignore-certificate-errors')
+# option.add_argument('window-size=1000,800')
+# option.add_argument('--disable-cache')
+# service = Service(executable_path=ChromeDriverManager().install())
+# driver = webdriver.Chrome(service=service, options=option)
+#
+# driver.get('https://uzum.uz/uz/category/hafta-tovarlari--895')
+# wait = WebDriverWait(driver, 15, poll_frequency=1)
+# products_path = (By.XPATH, "//a[contains(@class, 'product-card')]")
+# cards = wait.until(EC.presence_of_all_elements_located(products_path))
+# products = []
+# for card in cards:
+#     title = card.find_element(By.XPATH, "//div[@class='product-card__title']").text
+#     by_card_price = card.find_element(By.XPATH, "//span[@class='currency']").text
+#     price = card.find_element(By.XPATH, "//span[contains(@class, 'card-price__regular')]").text
+#
+#     products.append({
+#         "title": title,
+#         "by_card_price": by_card_price,
+#         "price": price
+#     })
+# print(products)
