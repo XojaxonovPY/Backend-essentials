@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
     'rest_framework.authtoken',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
+    'pyuploadcare.dj'
 ]
 
 MIDDLEWARE = [
@@ -211,7 +212,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer"}
 # ================================================Redis=====================================
-redis = Redis.from_url(getenv('REDIS_URL'),decode_responses=True)
+redis = Redis.from_url(getenv('REDIS_URL'), decode_responses=True)
 
 # ===============================================send_phone_number==========================
 
@@ -244,3 +245,16 @@ HASH = getenv('HASH')
 
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 API_KEY = getenv('API_KEY')
+
+# =================================file-uploader=========================================
+
+
+UPLOADCARE_PUBLIC_KEY = '1f59d525e079ce67eba9'
+UPLOADCARE_SECRET_KEY = 'ef8b39d0156cdf7e4963'
+
+UPLOADCARE = {
+    'pub_key': UPLOADCARE_PUBLIC_KEY,  # o'z public key'ingni yoz
+    'secret': UPLOADCARE_SECRET_KEY  # secret key'ingni yoz
+}
+
+DEFAULT_FILE_STORAGE = 'pyuploadcare.dj.storage.UploadcareStorage'

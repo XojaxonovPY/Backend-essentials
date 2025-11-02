@@ -1,8 +1,8 @@
-import os
 import uuid
-from datetime import datetime
-import qrcode
+from io import BytesIO
+
 import docker
+import qrcode
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -13,10 +13,10 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 from DjangoAPI.settings import API_KEY, API_URL
 from apps.models import Category, Product, QRCode
@@ -43,37 +43,34 @@ class GenerateQRCodeGenericAPIView(GenericAPIView):
     serializer_class = QRCodeSerializer
 
     def get(self, request):
-        # 1. Unikal token yaratamiz
         token = str(uuid.uuid4())
         QRCode.objects.create(code=token)
-        # 2. Telegram URL + token
-        data = f'https://t.me/python_project_v1_bot?start={token}'
-
-        # 3. QR code yaratish
+        redirect_url = f'https://t.me/python_project_v1_bot?start={token}'
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_H,
             box_size=10,
             border=4,
         )
-        qr.add_data(data)
+        qr.add_data(redirect_url)
         qr.make(fit=True)
-
         img = qr.make_image(fill_color="black", back_color="white")
-
-        # 4. Faylni saqlash
-        filename = f"qr_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.png"
-        path = os.path.join(settings.MEDIA_ROOT, 'qrcodes', filename)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        img.save(path)
-
-        # 5. QR code rasm URL
-        file_url = request.build_absolute_uri(settings.MEDIA_URL + f"qrcodes/{filename}")
-
-        # 6. QR link va tokenni qaytarish
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)
+        upload_url = "https://upload.uploadcare.com/base/"
+        files = {'file': (f'{token}.png', buffer, 'image/png')}
+        data = {
+            'UPLOADCARE_PUB_KEY': settings.UPLOADCARE_PUBLIC_KEY,
+            'UPLOADCARE_STORE': '1'
+        }
+        response = requests.post(upload_url, files=files, data=data)
+        result = response.json()
+        file_uuid = result.get('file')
+        file_url = f"https://6vmpr9xieg.ucarecd.net/{file_uuid}/-/preview/"
         return Response({
             "qr_code_url": file_url,
-            "redirect_url": data,
+            "redirect_url": redirect_url,
             "token": token
         })
 

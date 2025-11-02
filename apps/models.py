@@ -1,8 +1,8 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, UserManager
-from django.db.models import Model, CharField, DecimalField, BigIntegerField, IntegerField, FileField
+from django.db.models import Model, CharField, DecimalField, BigIntegerField, IntegerField
 from django.db.models import SET_NULL, ForeignKey
-
+from pyuploadcare.dj.models import ImageField, FileField
 
 class Category(Model):
     class Meta:
@@ -52,7 +52,7 @@ class Delivery(Model):
 
 class Videos(Model):
     name = CharField(max_length=255)
-    video = FileField(upload_to='videos/')
+    video = FileField(blank=True,null=True)
     price = DecimalField(max_digits=9, decimal_places=2)
 
 
@@ -84,11 +84,23 @@ class CustomUserManager(UserManager):
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(phone_number, password, **extra_fields)
 
+    def create_superuser(self, phone_number=None, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+
+        return self._create_user(phone_number, password, **extra_fields)
+
+    create_superuser.alters_data = True
 
 
 class User(AbstractUser):
     USERNAME_FIELD = "phone_number"
     REQUIRED_FIELDS = []
-    phone_number = CharField(max_length=255, unique=True,null=True, blank=True)
+    phone_number = CharField(max_length=255, unique=True, null=True, blank=True)
     username = None
     objects = CustomUserManager()
