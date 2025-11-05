@@ -1,8 +1,10 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, UserManager
-from django.db.models import Model, CharField, DecimalField, BigIntegerField, IntegerField
+from django.db.models import Model, CharField, DecimalField, BigIntegerField, IntegerField, JSONField, TextField, \
+    DateTimeField
 from django.db.models import SET_NULL, ForeignKey
 from pyuploadcare.dj.models import ImageField, FileField
+
 
 class Category(Model):
     class Meta:
@@ -52,7 +54,7 @@ class Delivery(Model):
 
 class Videos(Model):
     name = CharField(max_length=255)
-    video = FileField(blank=True,null=True)
+    video = FileField(blank=True, null=True)
     price = DecimalField(max_digits=9, decimal_places=2)
 
 
@@ -104,3 +106,24 @@ class User(AbstractUser):
     phone_number = CharField(max_length=255, unique=True, null=True, blank=True)
     username = None
     objects = CustomUserManager()
+
+
+class TestCase(Model):
+    summary = CharField(max_length=50)
+    pre_conditions = JSONField()
+    test_data = JSONField()
+    steps = JSONField()
+    expected_result = JSONField()
+
+
+class BugReporter(Model):
+    title = CharField(max_length=50)
+    description = TextField()
+    severity = CharField(max_length=50)
+    priority = CharField(max_length=50)
+    steps_to_reproduce = CharField(max_length=50, null=True, blank=True)
+    expected_result = TextField()
+    actual_result = TextField()
+    status = CharField(max_length=50)
+    created_at = DateTimeField(auto_now=True)
+    updated_at = DateTimeField(auto_now=True)
