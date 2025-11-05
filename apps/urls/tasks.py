@@ -14,5 +14,6 @@ urlpatterns = [
     path('get/news/', WebGetAPIView.as_view()),
     path('get/products/', SeleniumAPIView.as_view()),
     path('create/telegram/bot', AutoBotGenericAPIView.as_view()),
-    path('ask/', AskGPTGenericAPIView.as_view())
+    path('ask/', AskGPTGenericAPIView.as_view()),
+    path('to/exel', ToExcel.as_view())
 ]

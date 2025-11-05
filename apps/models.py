@@ -3,8 +3,7 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.db.models import Model, CharField, DecimalField, BigIntegerField, IntegerField, JSONField, TextField, \
     DateTimeField
 from django.db.models import SET_NULL, ForeignKey
-from pyuploadcare.dj.models import ImageField, FileField
-
+from pyuploadcare.dj.models import FileField
 
 class Category(Model):
     class Meta:

@@ -19,10 +19,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 from DjangoAPI.settings import API_KEY, API_URL
-from apps.models import Category, Product, QRCode
+from apps.models import Category, Product, QRCode, TestCase, BugReporter
 from apps.serializers import CategoryModelSerializer, ProductModelSerializer
 from apps.serializers import QRCodeSerializer, QuestionSerializer, AutobotSerializer
-
+import pandas as pd
+import os
 
 @extend_schema(tags=['tasks'])
 class CategoryModelViewSet(ModelViewSet):
@@ -175,3 +176,28 @@ class AutoBotGenericAPIView(GenericAPIView):
             return Response({"message": "Bot ishga tushirildi", "container_id": container.id})
         except docker.errors.APIError as e:
             return Response({"error": str(e)}, status=500)
+
+
+class ToExcel(GenericAPIView):
+    def get(self, request):
+        # 🔹 Ma'lumotlarni queryset -> dict shaklida olish
+        test_case_data = list(TestCase.objects.all().values())
+        bug_reporter_data = list(BugReporter.objects.all().values())
+
+        # DataFrame yaratish
+        test_case_df = pd.DataFrame(test_case_data)
+        bug_reporter_df = pd.DataFrame(bug_reporter_data)
+
+        # Timezone olib tashlash
+        for df in [test_case_df, bug_reporter_df]:
+            for col in df.select_dtypes(include=['datetimetz']).columns:
+                df[col] = df[col].dt.tz_localize(None)
+
+        # Excelga yozish
+        file_path = os.path.join(settings.BASE_DIR, "bug_reports.xlsx")
+
+        with pd.ExcelWriter(file_path, engine="openpyxl") as writer:
+            # test_case_df.to_excel(writer, sheet_name="Test Cases", index=False)
+            bug_reporter_df.to_excel(writer, sheet_name="Bug Reports", index=False)
+
+        return Response({'message': '✅ Ma\'lumotlar Excelga muvaffaqiyatli yozildi!'}, status=200)
